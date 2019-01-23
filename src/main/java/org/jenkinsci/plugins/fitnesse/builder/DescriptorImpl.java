@@ -104,10 +104,13 @@ public class DescriptorImpl extends BuildStepDescriptor<Builder>
         try (Response response = new OkHttpClient().newCall(request).execute())
         {
             return response.code() == 200 ? FormValidation.ok(Messages.FitnessePageBuilder_validRemoteURL(value))
-                : FormValidation.error(Messages.FitnessePageBuilder_errors_unreachableRemoteURL(value));
+                                          : FormValidation.error(Messages.FitnessePageBuilder_errors_unreachableRemoteURL(value));
         } catch (final IOException e)
         {
-            return FormValidation.error(Messages.FitnessePageBuilder_errors_unreachableRemoteURL(value));
+            return FormValidation.error(
+                    String.format("%s: %s",
+                            Messages.FitnessePageBuilder_errors_unreachableRemoteURL(value),
+                            e.getMessage()));
         }
     }
 
@@ -211,7 +214,10 @@ public class DescriptorImpl extends BuildStepDescriptor<Builder>
             out = String.format(value, fakePage);
         } catch (final IllegalFormatException ife)
         {
-            return FormValidation.error(Messages.FitnessePageBuilder_errors_invalidFilenameOutputFormat());
+            return FormValidation.error(
+                    String.format("%s: %s",
+                            Messages.FitnessePageBuilder_errors_invalidFilenameOutputFormat(),
+                            ife.getMessage()));
         }
 
         if (!out.contains(fakePage))

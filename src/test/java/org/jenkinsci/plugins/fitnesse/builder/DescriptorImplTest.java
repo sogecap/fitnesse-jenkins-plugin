@@ -18,11 +18,9 @@ package org.jenkinsci.plugins.fitnesse.builder;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
-import org.jenkinsci.plugins.fitnesse.builder.DescriptorImpl;
+import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
-
-import org.jenkinsci.plugins.fitnesse.builder.Messages;
 
 import hudson.Util;
 import hudson.util.FormValidation;
@@ -120,9 +118,9 @@ public class DescriptorImplTest
         final FormValidation result = this.descriptor.doTestConnection(url);
 
         Assert.assertEquals(Kind.ERROR, result.kind);
-        Assert.assertEquals(
-                Util.escape(Messages.FitnessePageBuilder_errors_unreachableRemoteURL(url)),
-                result.getMessage());
+        Assert.assertThat(
+                result.getMessage(),
+                CoreMatchers.startsWith(Util.escape(Messages.FitnessePageBuilder_errors_unreachableRemoteURL(url))));
     }
 
     /**
@@ -270,7 +268,7 @@ public class DescriptorImplTest
         result = this.descriptor.doCheckFilenameOutputFormat("%d-fitnesse-results.txt");
 
         Assert.assertEquals(Kind.ERROR, result.kind);
-        Assert.assertEquals(Messages.FitnessePageBuilder_errors_invalidFilenameOutputFormat(), result.getMessage());
+        Assert.assertThat(result.getMessage(), CoreMatchers.containsString(Messages.FitnessePageBuilder_errors_invalidFilenameOutputFormat()));
 
         result = this.descriptor.doCheckFilenameOutputFormat("fitnesse-results.txt");
 
