@@ -15,11 +15,9 @@
  */
 package org.jenkinsci.plugins.fitnesse.publisher;
 
-import org.jenkinsci.plugins.fitnesse.publisher.DescriptorImpl;
+import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
-
-import org.jenkinsci.plugins.fitnesse.publisher.Messages;
 
 import hudson.util.FormValidation;
 import hudson.util.FormValidation.Kind;
@@ -71,6 +69,8 @@ public class DescriptorImplTest
         final FormValidation result = this.descriptor.doCheckXmlResultsPath(value);
 
         Assert.assertEquals(Kind.ERROR, result.kind);
-        Assert.assertEquals(Messages.FitnessePageResultsPublisher_errors_invalidGlob(), result.getMessage());
+        Assert.assertThat(
+                result.getMessage(),
+                CoreMatchers.startsWith(Messages.FitnessePageResultsPublisher_errors_invalidGlob()));
     }
 }
