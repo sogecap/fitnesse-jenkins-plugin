@@ -1,0 +1,47 @@
+<?jelly escape-by-default='true'?>
+
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+	<f:block>
+		<em>${%remoteHostSection}</em>
+		<f:entry title="${%urlTitle}" field="remoteFitnesseUrl" description="${%urlDescription}">
+			<f:textbox />
+		</f:entry>
+		<f:validateButton title="${%testConnection}" progress="${testConnectionProgress}" method="testConnection" with="remoteFitnesseUrl" />
+	</f:block>
+
+	<f:block>
+		<em>${%targetSection}</em>
+		<f:radioBlock title="${%suiteTitle}" name="targetType" value="suite" checked="${instance.targetType == 'suite'}" inline="true">
+	        <f:entry title="${%suiteSubtitle}" field="targetSuite">
+	          <f:textbox />
+	        </f:entry>
+    	</f:radioBlock>
+    
+	    <f:radioBlock title="${%pagesTitle}" name="targetType" value="pages" checked="${instance.targetType == 'pages'}" inline="true">
+	        <f:entry title="${%pagesSubtitle}" field="targetPages">
+	          <f:expandableTextbox />
+	        </f:entry>
+	    </f:radioBlock>
+	    
+	    <f:radioBlock title="${%textfileTitle}" name="targetType" value="textfile" checked="${instance.targetType == 'textfile'}" inline="true">
+	        <f:entry title="${%textfileSubtitle}" field="targetFile">
+	          <f:textbox />
+	        </f:entry>
+	    </f:radioBlock>
+	</f:block>
+	
+	<f:block>
+		<em>${%outputSection}</em>
+		<f:entry title="${%pageContentTitle}" field="includeHtmlOutput" description="${%pageContentDescription}">
+			<f:checkbox />
+		</f:entry>
+		<f:advanced>
+			<f:entry title="${%filenameOutputFormatTitle}" field="filenameOutputFormat" description="${%filenameOutputFormatDescription}">
+				<f:textbox default="%s-fitnesse.results.xml" />
+			</f:entry>
+			<f:entry title="${%timeoutTitle}" field="httpTimeout" description="${%timeoutDescription}">
+				<f:textbox default="60" />
+			</f:entry>
+		</f:advanced>
+	</f:block>
+</j:jelly>

@@ -1,0 +1,11 @@
+@import url( "fitnesse_pages.css" );
+@import url( "fitnesse_wiki.css" );
+@import url( "fitnesse_bootstrap.css" );
+
+a[title="create page"] {
+	display: none;
+}
+
+h1, h2, h3 {
+	line-height: 1.2;
+}

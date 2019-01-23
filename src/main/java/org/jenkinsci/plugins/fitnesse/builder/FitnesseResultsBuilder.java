@@ -1,0 +1,278 @@
+package org.jenkinsci.plugins.fitnesse.builder;
+
+import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+
+import org.jenkinsci.plugins.fitnesse.builder.runner.FitnessePageRunner;
+import org.jenkinsci.plugins.fitnesse.builder.runner.FitnesseResponse;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
+
+import hudson.FilePath;
+import hudson.Launcher;
+import hudson.model.Run;
+import hudson.model.TaskListener;
+import hudson.tasks.Builder;
+import jenkins.tasks.SimpleBuildStep;
+
+/**
+ * {@link Builder} implementation which allows to add a Jenkins build step
+ * managing the execution of FitNesse pages or suites from a given configuration
+ * 
+ * <p>
+ * FitNesse targets are executed according to the user-provided configuration.
+ * 
+ * <p>
+ * The results of the FitNesse targets execution are written to disk into Jenkins's
+ * workspace and thus may be deleted once they are no longer of use.
+ * 
+ */
+public class FitnesseResultsBuilder extends Builder implements SimpleBuildStep
+{
+
+    private URL remoteFitnesseUrl;
+
+    private Integer httpTimeout;
+
+    private String targetType;
+
+    private String targetSuite;
+
+    private String targetPages;
+
+    private String targetFile;
+
+    private boolean includeHtmlOutput;
+
+    private String filenameOutputFormat;
+
+    /** Default constructor */
+    @DataBoundConstructor
+    public FitnesseResultsBuilder()
+    {
+        // no-op
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void perform(final Run<?, ?> run, final FilePath workspace, final Launcher launcher, final TaskListener listener) throws InterruptedException, IOException
+    {
+        listener.getLogger().printf("Launching FitNesse tests on remote host \"%s\"...%n", this.remoteFitnesseUrl);
+
+        final FitnessePageRunner runner = new FitnessePageRunner(this.remoteFitnesseUrl, this.httpTimeout, this.includeHtmlOutput, listener);
+        final TestsExecutionCallable callable = new TestsExecutionCallable(runner, listener, this.targetType, this.targetFile, this.targetPages, this.targetSuite);
+
+        // execute the pages on the node and write the resulting responses in the workspace
+        for (final FitnesseResponse response : workspace.act(callable))
+        {
+            workspace
+            .child(String.format(this.filenameOutputFormat, response.getPage()))
+            .write(response.getContent(), StandardCharsets.UTF_8.name());
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public DescriptorImpl getDescriptor()
+    {
+        return (DescriptorImpl) super.getDescriptor();
+    }
+
+    /**
+     * @return name of the remote Fitnesse URL
+     */
+    public URL getRemoteFitnesseUrl()
+    {
+        return this.remoteFitnesseUrl;
+    }
+
+    /**
+     * @return HTTP timeout
+     */
+    public int getHttpTimeout()
+    {
+        return this.httpTimeout == null ? 60 : this.httpTimeout;
+    }
+
+    /**
+     * @return type of the FitNesse targets
+     */
+    public String getTargetType()
+    {
+        return this.targetType == null ? TargetType.PAGES.getName() : this.targetType;
+    }
+
+    /**
+     * @return name of the workspace file which contains the list of FitNesse pages to run
+     */
+    public String getTargetFile()
+    {
+        return this.targetFile;
+    }
+
+    /**
+     * @return newline/space-delimited list of the FitNesse targets to run
+     */
+    public String getTargetPages()
+    {
+        return this.targetPages;
+    }
+
+    /**
+     * @return name of the targeted FitNesse suite
+     */
+    public String getTargetSuite()
+    {
+        return this.targetSuite;
+    }
+
+    /**
+     * @return whether to capture the HTML output of the FitNesse tests
+     */
+    public boolean getIncludeHtmlOutput()
+    {
+        return this.includeHtmlOutput;
+    }
+
+    /**
+     * @return filename pattern of the generated Fitnesse test output files
+     */
+    public String getFilenameOutputFormat()
+    {
+        return this.filenameOutputFormat;
+    }
+
+    /**
+     * @param remoteFitnesseUrl
+     */
+    @DataBoundSetter
+    public void setRemoteFitnesseUrl(final URL remoteFitnesseUrl)
+    {
+        this.remoteFitnesseUrl = remoteFitnesseUrl;
+    }
+
+    /**
+     * @param httpTimeout
+     */
+    @DataBoundSetter
+    public void setHttpTimeout(final int httpTimeout)
+    {
+        this.httpTimeout = httpTimeout;
+    }
+
+    /**
+     * @param targetType
+     */
+    @DataBoundSetter
+    public void setTargetType(final String targetType)
+    {
+        this.targetType = targetType;
+    }
+
+    /**
+     * @param includeHtmlOutput
+     */
+    @DataBoundSetter
+    public void setIncludeHtmlOutput(final boolean includeHtmlOutput)
+    {
+        this.includeHtmlOutput = includeHtmlOutput;
+    }
+
+    /**
+     * @param targetSuite
+     */
+    @DataBoundSetter
+    public void setTargetSuite(final String targetSuite)
+    {
+        this.targetSuite = targetSuite;
+    }
+
+    /**
+     * @param targetPages
+     */
+    @DataBoundSetter
+    public void setTargetPages(final String targetPages)
+    {
+        this.targetPages = targetPages;
+    }
+
+    /**
+     * @param targetTextFile
+     */
+    @DataBoundSetter
+    public void setTargetFile(final String targetTextFile)
+    {
+        this.targetFile = targetTextFile;
+    }
+
+    /**
+     * @param filenameOutputFormat
+     */
+    @DataBoundSetter
+    public void setFilenameOutputFormat(final String filenameOutputFormat)
+    {
+        this.filenameOutputFormat = filenameOutputFormat;
+    }
+
+    /**
+     * FitNesse execution targets
+     * 
+     * <p>
+     * Describes the different types of FitNesse targets to be run by {@link FitnessePageRunner}.
+     * 
+     * @see FitnessePageRunner
+     */
+    public enum TargetType
+    {
+
+        /** Text file containing a list of the FitNesse pages to execute */
+        TEXT_FILE("textfile"),
+
+        /** List of FitNesse pages to execute */
+        PAGES("pages"),
+
+        /** FitNesse page containing a list of FitNesse pages to execute */
+        SUITE("suite"),
+
+        /** Unsupported target type */
+        UNKNOWN("unknown");
+
+        private String name;
+
+        /**
+         * @param name target name
+         */
+        TargetType(final String name)
+        {
+            this.name = name;
+        }
+
+        /**
+         * Determines the target type corresponding to the given string
+         * 
+         * @param value string representation of the target type
+         * @return the corresponding target type, or {@code FitnesseTargetType#UNKNOWN} if none was found
+         */
+        public static TargetType targetTypeFor(final String value)
+        {
+            for (final TargetType type : TargetType.values())
+            {
+                if (type.getName().equals(value))
+                {
+                    return type;
+                }
+            }
+
+            return UNKNOWN;
+        }
+
+        /**
+         * @return name of the target
+         */
+        public String getName()
+        {
+            return this.name;
+        }
+    }
+}

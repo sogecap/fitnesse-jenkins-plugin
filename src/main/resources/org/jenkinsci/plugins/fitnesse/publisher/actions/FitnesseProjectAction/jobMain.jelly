@@ -1,0 +1,10 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt">
+	<table style="margin-top: 1em; margin-left:1em;">
+		<t:summary icon="/plugin/fitnesse-jenkins-plugin/icons/fitnesse-logo-48x48.png">
+			<a href="lastCompletedBuild/fitnesseReport/">${%link}</a>
+			<st:nbsp />
+			${it.summary}
+		</t:summary>
+	</table>
+</j:jelly>
