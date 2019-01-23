@@ -1,0 +1,28 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt">
+	<h2>${%allPages}</h2>
+	<div>
+		<table class="pane sortable bigtable">
+			<tr>
+				<td class="pane-header">${%name}</td>
+				<td class="pane-header">${%right}</td>
+				<td class="pane-header">${%wrong}</td>
+				<td class="pane-header">${%ignored}</td>
+				<td class="pane-header">${%exceptions}</td>
+				<td class="pane-header">${%duration}</td>
+			</tr>
+			<j:forEach var="test" items="${it.children}">
+				<tr>
+					<td>
+						<j:out value="${test.detailsLink}"/>
+					</td>
+					<td>${test.passCount}</td>
+					<td>${test.failOnlyCount}</td>
+					<td>${test.skipCount}</td>
+					<td>${test.exceptionCount}</td>
+					<td>${test.duration} s</td>
+				</tr>
+			</j:forEach>
+		</table>
+	</div>
+</j:jelly>

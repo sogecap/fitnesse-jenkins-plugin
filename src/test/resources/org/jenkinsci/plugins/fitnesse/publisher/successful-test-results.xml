@@ -1,0 +1,29 @@
+<testResults>
+	<FitNesseVersion>v20161106</FitNesseVersion>
+	<rootPath>This.Is.A.Sample.Test.Output</rootPath>
+	<result>
+		<counts>
+			<right>10</right>
+			<wrong>0</wrong>
+			<ignores>2</ignores>
+			<exceptions>0</exceptions>
+		</counts>
+		<date>2018-08-09T10:35:12+02:00</date>
+		<runTimeInMillis>3576</runTimeInMillis>
+		<content>Test output goes here</content>
+	</result>
+	<executionLog>
+		<testSystem>slim:fitnesse.slim.SlimService</testSystem>
+		<command>java -cp /opt/fitnesse/fitnesse-standalone.jar 46598</command>
+		<exitCode>0</exitCode>
+		<stdOut>Standard output goes here</stdOut>
+		<stdErr/>
+	</executionLog>
+	<finalCounts>
+		<right>1</right>
+		<wrong>0</wrong>
+		<ignores>0</ignores>
+		<exceptions>0</exceptions>
+	</finalCounts>
+	<totalRunTimeInMillis>3951</totalRunTimeInMillis>
+</testResults>

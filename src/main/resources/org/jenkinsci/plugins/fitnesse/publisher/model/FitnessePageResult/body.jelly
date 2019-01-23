@@ -1,0 +1,9 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt">
+	<script lang="javascript" src="${resURL}/plugin/fitnesse-jenkins-plugin/javascript/jquery-1.7.2.min.js"/>
+	<link rel="stylesheet" href="${resURL}/plugin/fitnesse-jenkins-plugin/css/jenkins_fitnesse.css" type="text/css"/>
+	<div id="fitnesse_results">
+		<j:out value="${it.htmlContent}" />
+	</div>
+	<script lang="javascript" src="${resURL}/plugin/fitnesse-jenkins-plugin/javascript/jenkins_fitnesse.js"/>
+</j:jelly>
