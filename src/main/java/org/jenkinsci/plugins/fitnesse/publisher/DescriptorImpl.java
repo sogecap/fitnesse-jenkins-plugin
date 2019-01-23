@@ -63,7 +63,10 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher>
             FileSystems.getDefault().getPathMatcher(String.format("glob:%s", value));
         } catch (final PatternSyntaxException pse)
         {
-            return FormValidation.error(Messages.FitnessePageResultsPublisher_errors_invalidGlob());
+            return FormValidation.error(
+                    String.format("%s: %s",
+                            Messages.FitnessePageResultsPublisher_errors_invalidGlob(),
+                            pse.getMessage()));
         }
 
         return FormValidation.ok();
