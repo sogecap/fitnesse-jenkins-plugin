@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.jenkins-ci.plugins</groupId>
+		<artifactId>plugin</artifactId>
+		<version>3.17</version>
+		<relativePath />
+	</parent>
+
+	<artifactId>fitnesse-jenkins-plugin</artifactId>
+	<version>1.0-SNAPSHOT</version>
+	<packaging>hpi</packaging>
+
+	<name>Fitnesse Test Executor Plugin</name>
+	<description>Enables Jenkins to execute FitNesse tests or test suites and publish their results.</description>
+
+	<properties>
+		<!-- Targeted JDK version -->
+		<java.level>8</java.level>
+
+		<!-- Jenkins dependencies -->
+		<jenkins.structs.version>1.7</jenkins.structs.version>
+		<jenkins.junit.version>1.21</jenkins.junit.version>
+		<jenkins.workflow-step-api.version>2.12</jenkins.workflow-step-api.version>
+		<jenkins.workflow-cps.version>2.39</jenkins.workflow-cps.version>
+		<jenkins.workflow-job.version>2.11.2</jenkins.workflow-job.version>
+		<jenkins.workflow-basic-steps.version>2.6</jenkins.workflow-basic-steps.version>
+		<jenkins.workflow-durable-task-step.version>2.13</jenkins.workflow-durable-task-step.version>
+		<jenkins.workflow-api.version>2.20</jenkins.workflow-api.version>
+		<jenkins.workflow-support.version>2.14</jenkins.workflow-support.version>
+
+		<!-- OkHttp -->
+		<okhttp.version>3.11.0</okhttp.version>
+
+		<!-- Test dependencies -->
+		<mockito.version>2.21.0</mockito.version>
+		<mockwebserver.version>3.6.0</mockwebserver.version>
+	</properties>
+
+	<dependencies>
+		<!-- Jenkins dependencies -->
+		<dependency>
+			<groupId>org.jenkins-ci.plugins</groupId>
+			<artifactId>structs</artifactId>
+			<version>${jenkins.structs.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jenkins-ci.plugins</groupId>
+			<artifactId>junit</artifactId>
+			<version>${jenkins.junit.version}</version>
+		</dependency>
+
+		<!-- OkHttp -->
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>okhttp</artifactId>
+			<version>${okhttp.version}</version>
+		</dependency>
+
+		<!-- Test dependencies -->
+		<dependency>
+			<groupId>org.jenkins-ci.plugins.workflow</groupId>
+			<artifactId>workflow-step-api</artifactId>
+			<version>${jenkins.workflow-step-api.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jenkins-ci.plugins.workflow</groupId>
+			<artifactId>workflow-cps</artifactId>
+			<version>${jenkins.workflow-cps.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jenkins-ci.plugins.workflow</groupId>
+			<artifactId>workflow-job</artifactId>
+			<version>${jenkins.workflow-job.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jenkins-ci.plugins.workflow</groupId>
+			<artifactId>workflow-basic-steps</artifactId>
+			<version>${jenkins.workflow-basic-steps.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jenkins-ci.plugins.workflow</groupId>
+			<artifactId>workflow-durable-task-step</artifactId>
+			<version>${jenkins.workflow-durable-task-step.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jenkins-ci.plugins.workflow</groupId>
+			<artifactId>workflow-api</artifactId>
+			<version>${jenkins.workflow-api.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jenkins-ci.plugins.workflow</groupId>
+			<artifactId>workflow-support</artifactId>
+			<version>${jenkins.workflow-support.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>${mockito.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>mockwebserver</artifactId>
+			<version>${mockwebserver.version}</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<configuration>
+					<skip>${maven.test.skip}</skip>
+					<output>file</output>
+					<append>true</append>
+				</configuration>
+				<executions>
+					<execution>
+						<id>jacoco-initialize</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>jacoco-site</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>
