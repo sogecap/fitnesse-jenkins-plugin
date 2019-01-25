@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +15,6 @@
  */
 package org.jenkinsci.plugins.fitnesse.builder.runner.logging;
 
-import java.io.IOException;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -62,13 +61,6 @@ public class LoggingEventListener extends EventListener
         // request is enqueued, which is not when the remote FitNesse host really begins to execute our request
         this.callStart = System.currentTimeMillis();
         this.logger.printf(">> Running page \"%s\"...%n", this.targetedPage);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void callFailed(final Call call, final IOException ioe)
-    {
-        this.logger.printf("<< Failed to execute page \"%s\": %s%n", this.targetedPage, ioe.getMessage());
     }
 
     /** {@inheritDoc} */
