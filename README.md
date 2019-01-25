@@ -65,3 +65,5 @@ You can attach a debugger by setting the following environment variables:
 
 The `Messages.properties` files found in `src/main/resources` contain localization strings,
 which are made available in the code via the `Messages` class. In case you want to update them, run the `generate-sources` Maven goal.
+
+Two build profiles are available: The default one (`2.89.4`) will build an hpi archive compatible with Jenkins 2.89.4+, and the other one (`2.73.3`) will build an archive that is compatible with Jenkins 2.73.3+.
