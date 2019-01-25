@@ -18,6 +18,28 @@
 	<name>Fitnesse Test Executor Plugin</name>
 	<description>Enables Jenkins to execute FitNesse tests or test suites and publish their results.</description>
 
+	<licenses>
+		<license>
+			<name>MIT License</name>
+			<url>http://www.opensource.org/licenses/mit-license.php</url>
+		</license>
+	</licenses>
+
+	<scm>
+		<connection>scm:git:https://github.com/sogecap/${project.artifactId}.git</connection>
+		<developerConnection>scm:git:https://github.com/sogecap/${project.artifactId}.git</developerConnection>
+		<url>https://github.com/sogecap/${project.artifactId}</url>
+	</scm>
+	
+	<developers>
+		<developer>
+			<email>nicolas.gquerol@gmail.com</email>
+			<name>Nicolas G. Querol</name>
+			<url>https://github.com/ngquerol</url>
+			<id>ngquerol</id>
+		</developer>
+	</developers>
+
 	<properties>
 		<!-- Targeted JDK version -->
 		<java.level>8</java.level>
@@ -146,4 +168,22 @@
 			</plugin>
 		</plugins>
 	</build>
+	
+	<profiles>
+		<profile>
+			<id>2.89.4</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<jenkins.version>2.89.4</jenkins.version>
+			</properties>
+		</profile>
+		<profile>
+			<id>2.73.3</id>
+			<properties>
+				<jenkins.version>2.73.3</jenkins.version>
+			</properties>
+		</profile>
+	</profiles>
 </project>
