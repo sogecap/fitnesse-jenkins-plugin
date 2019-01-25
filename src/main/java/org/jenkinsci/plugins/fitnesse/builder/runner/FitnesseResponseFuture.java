@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +24,7 @@ import org.jenkinsci.plugins.fitnesse.builder.runner.exceptions.TestExecutionExc
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 /**
  * Bridge between OkHttp's {@link Callback} and {@link CompletableFuture} for FitNesse responses
@@ -75,7 +76,15 @@ public class FitnesseResponseFuture implements Callback
                                         this.targetPage, response.code(), response.message())));
             } else
             {
-                this.future.complete(new FitnesseResponse(this.targetPage, response.body().string()));
+                try (ResponseBody body = response.body())
+                {
+                    this.future.complete(new FitnesseResponse(this.targetPage, body.string()));
+                } catch (final IOException e)
+                {
+                    this.future.completeExceptionally(new TestExecutionException(
+                            String.format("<< Failed to read HTTP response for page \"%s\": %s",
+                                    this.targetPage, e.getMessage())));
+                }
             }
         }
     }
