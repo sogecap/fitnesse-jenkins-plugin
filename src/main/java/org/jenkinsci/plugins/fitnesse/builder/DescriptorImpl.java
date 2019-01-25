@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,6 +28,7 @@ import hudson.model.AbstractProject;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.FormValidation;
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -98,7 +99,13 @@ public class DescriptorImpl extends BuildStepDescriptor<Builder>
      */
     public FormValidation doTestConnection(@QueryParameter("remoteFitnesseUrl") final String value) throws MalformedURLException
     {
-        final URL rootUrl = new URL(String.join("/", value, "root"));
+        final HttpUrl rootUrl = HttpUrl.parse(String.join("/", value, "root"));
+
+        if (rootUrl == null)
+        {
+            return FormValidation.error(Messages.FitnessePageBuilder_errors_unreachableRemoteURL(value));
+        }
+
         final Request request = new Request.Builder().url(rootUrl).build();
 
         try (Response response = new OkHttpClient().newCall(request).execute())
