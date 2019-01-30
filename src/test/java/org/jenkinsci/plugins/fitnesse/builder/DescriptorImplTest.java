@@ -178,10 +178,12 @@ public class DescriptorImplTest
         FormValidation result;
 
         result = this.descriptor.doCheckHttpTimeout("");
-        Assert.assertEquals(Kind.OK, result.kind);
+        Assert.assertEquals(Kind.ERROR, result.kind);
+        Assert.assertEquals(Util.escape(Messages.FitnessePageBuilder_errors_invalidHttpTimeoutFormat()), result.getMessage());
 
         result = this.descriptor.doCheckHttpTimeout(null);
-        Assert.assertEquals(Kind.OK, result.kind);
+        Assert.assertEquals(Kind.ERROR, result.kind);
+        Assert.assertEquals(Util.escape(Messages.FitnessePageBuilder_errors_invalidHttpTimeoutFormat()), result.getMessage());
     }
 
     /** Valid target file */

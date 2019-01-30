@@ -37,10 +37,13 @@
 		</f:entry>
 		<f:advanced>
 			<f:entry title="${%filenameOutputFormatTitle}" field="filenameOutputFormat" description="${%filenameOutputFormatDescription}">
-				<f:textbox default="%s-fitnesse.results.xml" />
+				<f:textbox default="${descriptor.DEFAULT_FILENAME_OUTPUT_FORMAT}" />
 			</f:entry>
 			<f:entry title="${%timeoutTitle}" field="httpTimeout" description="${%timeoutDescription}">
-				<f:textbox default="60" />
+				<f:textbox default="${descriptor.DEFAULT_HTTP_TIMEOUT}" />
+			</f:entry>
+			<f:entry title="${%concurrencyLevelTitle}" field="concurrencyLevel" description="${%concurrencyLevelDescription}">
+				<f:textbox default="${descriptor.DEFAULT_CONCURRENCY_LEVEL}" />
 			</f:entry>
 		</f:advanced>
 	</f:block>

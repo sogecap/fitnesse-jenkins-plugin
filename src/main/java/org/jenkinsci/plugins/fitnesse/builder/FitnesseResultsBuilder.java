@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -48,8 +48,6 @@ public class FitnesseResultsBuilder extends Builder implements SimpleBuildStep
 
     private URL remoteFitnesseUrl;
 
-    private Integer httpTimeout;
-
     private String targetType;
 
     private String targetSuite;
@@ -60,13 +58,19 @@ public class FitnesseResultsBuilder extends Builder implements SimpleBuildStep
 
     private boolean includeHtmlOutput;
 
+    private int httpTimeout;
+
     private String filenameOutputFormat;
+
+    private int concurrencyLevel;
 
     /** Default constructor */
     @DataBoundConstructor
     public FitnesseResultsBuilder()
     {
-        // no-op
+        this.httpTimeout = DescriptorImpl.DEFAULT_HTTP_TIMEOUT;
+        this.filenameOutputFormat = DescriptorImpl.DEFAULT_FILENAME_OUTPUT_FORMAT;
+        this.concurrencyLevel = DescriptorImpl.DEFAULT_CONCURRENCY_LEVEL;
     }
 
     /** {@inheritDoc} */
@@ -75,15 +79,23 @@ public class FitnesseResultsBuilder extends Builder implements SimpleBuildStep
     {
         listener.getLogger().printf("Launching FitNesse tests on remote host \"%s\"...%n", this.remoteFitnesseUrl);
 
-        final FitnessePageRunner runner = new FitnessePageRunner(this.remoteFitnesseUrl, this.httpTimeout, this.includeHtmlOutput, listener);
+        final FitnessePageRunner runner = new FitnessePageRunner(this.remoteFitnesseUrl, this.httpTimeout, this.includeHtmlOutput, this.concurrencyLevel, listener);
         final TestsExecutionCallable callable = new TestsExecutionCallable(runner, listener, this.targetType, this.targetFile, this.targetPages, this.targetSuite);
 
         // execute the pages on the node and write the resulting responses in the workspace
-        for (final FitnesseResponse response : workspace.act(callable))
+        try
         {
-            workspace
-            .child(String.format(this.filenameOutputFormat, response.getPage()))
-            .write(response.getContent(), StandardCharsets.UTF_8.name());
+            for (final FitnesseResponse response : workspace.act(callable))
+            {
+                workspace
+                        .child(String.format(this.filenameOutputFormat, response.getPage()))
+                        .write(response.getContent(), StandardCharsets.UTF_8.name());
+            }
+        } catch (final InterruptedException ie)
+        {
+            listener.getLogger().println("Build was aborted, stopping queued and running tests...");
+            runner.cancelRequests();
+            throw ie;
         }
     }
 
@@ -103,19 +115,11 @@ public class FitnesseResultsBuilder extends Builder implements SimpleBuildStep
     }
 
     /**
-     * @return HTTP timeout
-     */
-    public int getHttpTimeout()
-    {
-        return this.httpTimeout == null ? 60 : this.httpTimeout;
-    }
-
-    /**
      * @return type of the FitNesse targets
      */
     public String getTargetType()
     {
-        return this.targetType == null ? TargetType.PAGES.getName() : this.targetType;
+        return this.targetType;
     }
 
     /**
@@ -151,11 +155,27 @@ public class FitnesseResultsBuilder extends Builder implements SimpleBuildStep
     }
 
     /**
+     * @return HTTP timeout
+     */
+    public int getHttpTimeout()
+    {
+        return this.httpTimeout;
+    }
+
+    /**
      * @return filename pattern of the generated Fitnesse test output files
      */
     public String getFilenameOutputFormat()
     {
         return this.filenameOutputFormat;
+    }
+
+    /**
+     * @return maximum number of concurrently running pages
+     */
+    public int getConcurrencyLevel()
+    {
+        return this.concurrencyLevel;
     }
 
     /**
@@ -228,6 +248,15 @@ public class FitnesseResultsBuilder extends Builder implements SimpleBuildStep
     public void setFilenameOutputFormat(final String filenameOutputFormat)
     {
         this.filenameOutputFormat = filenameOutputFormat;
+    }
+
+    /**
+     * @param concurrencyLevel
+     */
+    @DataBoundSetter
+    public void setConcurrencyLevel(final int concurrencyLevel)
+    {
+        this.concurrencyLevel = concurrencyLevel;
     }
 
     /**
