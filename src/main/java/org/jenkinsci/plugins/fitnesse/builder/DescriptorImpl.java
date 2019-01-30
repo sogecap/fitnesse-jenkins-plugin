@@ -34,8 +34,8 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 /**
- * Holds the configuration values of {@link FitnesseResultsBuilder}, and provides
- * basic validation of the user-submitted input values
+ * Holds the configuration metadata for {@link FitnesseResultsBuilder},
+ * and provides basic validation of the user-submitted input values
  * 
  * @see FitnesseResultsBuilder
  */
@@ -43,6 +43,15 @@ import okhttp3.Response;
 @Extension
 public class DescriptorImpl extends BuildStepDescriptor<Builder>
 {
+
+    /** Default HTTP call timeout */
+    public static final int DEFAULT_HTTP_TIMEOUT = 60;
+
+    /** Default tests results filename output format */
+    public static final String DEFAULT_FILENAME_OUTPUT_FORMAT = "%s-fitnesse.results.xml";
+
+    /** Default number of concurrently running pages */
+    public static final int DEFAULT_CONCURRENCY_LEVEL = 5;
 
     /**
      * Default constructor
@@ -131,7 +140,7 @@ public class DescriptorImpl extends BuildStepDescriptor<Builder>
     {
         if ((value == null) || value.isEmpty())
         {
-            return FormValidation.ok();
+            return FormValidation.error(Messages.FitnessePageBuilder_errors_invalidHttpTimeoutFormat());
         }
 
         final Integer timeout;
@@ -230,6 +239,37 @@ public class DescriptorImpl extends BuildStepDescriptor<Builder>
         if (!out.contains(fakePage))
         {
             return FormValidation.error(Messages.FitnessePageBuilder_errors_invalidFilenameOutputFormat());
+        }
+
+        return FormValidation.ok();
+    }
+
+    /**
+     * Concurrency level validation
+     * 
+     * @param value user-submitted value
+     * @return validation result
+     */
+    public FormValidation doCheckConcurrencyLevel(@QueryParameter final String value)
+    {
+        if ((value == null) || value.isEmpty())
+        {
+            return FormValidation.error(Messages.FitnessePageBuilder_errors_invalidHttpTimeoutFormat());
+        }
+
+        final Integer concurrencyLevel;
+
+        try
+        {
+            concurrencyLevel = Integer.valueOf(value);
+        } catch (final NumberFormatException nfe)
+        {
+            return FormValidation.error(Messages.FitnessePageBuilder_errors_invalidHttpTimeoutFormat());
+        }
+
+        if (concurrencyLevel < 0)
+        {
+            return FormValidation.error(Messages.FitnessePageBuilder_errors_invalidHttpTimeoutRange(value));
         }
 
         return FormValidation.ok();

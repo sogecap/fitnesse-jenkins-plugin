@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 import org.jenkinsci.plugins.fitnesse.builder.runner.logging.LoggingEventListenerFactory;
 
 import hudson.model.TaskListener;
+import okhttp3.Dispatcher;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
@@ -43,6 +44,8 @@ public class FitnessePageRunner implements Serializable
 
     private final int httpTimeout;
 
+    private final int concurrencyLevel;
+
     private final TaskListener listener;
 
     private transient OkHttpClient httpClient;
@@ -53,13 +56,15 @@ public class FitnessePageRunner implements Serializable
      * @param hostUrl URL of the remote FitNesse host
      * @param httpTimeout HTTP timeout
      * @param includeHtmlOutput whether to include the HTML test output in the responses
+     * @param concurrencyLevel maximum number of concurrently running FitNesse pages
      * @param listener build listener (for logging)
      */
-    public FitnessePageRunner(final URL hostUrl, final int httpTimeout, final boolean includeHtmlOutput, final TaskListener listener)
+    public FitnessePageRunner(final URL hostUrl, final int httpTimeout, final boolean includeHtmlOutput, final int concurrencyLevel, final TaskListener listener)
     {
         this.hostUrl = hostUrl;
-        this.includeHtmlOutput = includeHtmlOutput;
         this.httpTimeout = httpTimeout;
+        this.includeHtmlOutput = includeHtmlOutput;
+        this.concurrencyLevel = concurrencyLevel;
         this.listener = listener;
         this.httpClient = this.createHttpClient();
     }
@@ -105,6 +110,14 @@ public class FitnessePageRunner implements Serializable
         return this.scheduleRequest(targetPage, requestBuilder.build());
     }
 
+    /**
+     * Cancel all queued or in-flight requests
+     */
+    public void cancelRequests()
+    {
+        this.httpClient.dispatcher().cancelAll();
+    }
+
     private CompletableFuture<FitnesseResponse> scheduleRequest(final String targetPage, final Request request)
     {
         final FitnesseResponseFuture future = new FitnesseResponseFuture(targetPage);
@@ -117,7 +130,12 @@ public class FitnessePageRunner implements Serializable
 
     private OkHttpClient createHttpClient()
     {
+        final Dispatcher dispatcher = new Dispatcher();
+        dispatcher.setMaxRequests(this.concurrencyLevel);
+        dispatcher.setMaxRequestsPerHost(this.concurrencyLevel);
+
         return new OkHttpClient().newBuilder()
+                .dispatcher(dispatcher)
                 .readTimeout(this.httpTimeout, TimeUnit.SECONDS)
                 .eventListenerFactory(new LoggingEventListenerFactory(this.listener.getLogger()))
                 .build();

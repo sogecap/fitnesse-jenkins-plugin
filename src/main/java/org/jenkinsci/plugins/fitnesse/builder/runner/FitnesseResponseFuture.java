@@ -24,7 +24,6 @@ import org.jenkinsci.plugins.fitnesse.builder.runner.exceptions.TestExecutionExc
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 /**
  * Bridge between OkHttp's {@link Callback} and {@link CompletableFuture} for FitNesse responses
@@ -76,9 +75,9 @@ public class FitnesseResponseFuture implements Callback
                                         this.targetPage, response.code(), response.message())));
             } else
             {
-                try (ResponseBody body = response.body())
+                try
                 {
-                    this.future.complete(new FitnesseResponse(this.targetPage, body.string()));
+                    this.future.complete(new FitnesseResponse(this.targetPage, response.body().string()));
                 } catch (final IOException e)
                 {
                     this.future.completeExceptionally(new TestExecutionException(

@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import org.jenkinsci.plugins.fitnesse.builder.FitnesseResultsBuilder.TargetType;
@@ -145,8 +146,15 @@ public class TestsExecutionCallable extends MasterToSlaveFileCallable<List<Fitne
                 }))
                 .toArray(CompletableFuture[]::new);
 
-        // await the completion of all calls
-        CompletableFuture.allOf(responses).join();
+        // await the completion of all calls using get() (join() is not interruptible)
+        try
+        {
+            CompletableFuture.allOf(responses).get();
+        } catch (final ExecutionException e)
+        {
+            // should not happen, failed futures are filtered out beforehand
+            throw new IllegalStateException(e);
+        }
 
         // collect all successful responses
         return Arrays.stream(responses)
